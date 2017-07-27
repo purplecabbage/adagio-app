@@ -1,0 +1,34 @@
+
+obj
+Bin
+*.csproj.user
+*.suo
+*.cache
+Thumbs.db
+
+/temp/*
+
+*.dll
+
+# Ignore template zip files
+*.zip
+# Other useful stuff
+*.bak
+*.cache
+*.log
+*.swp
+*.user
+
+*.DS_Store
+
+app/platforms/
+app/plugins/
+app/hooks/
+
+.vscode/
+
+
+
+
+
+
