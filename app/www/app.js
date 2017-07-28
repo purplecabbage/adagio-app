@@ -69,6 +69,9 @@ var animStage = 3;
 var MaxTempo = 220;
 var MinTempo = 30;
 
+var sndClick;
+var sndClack;
+
 
 
 var currentTempo = parseFloat(localStorage.lastTempo || 66); // Adagio!!
@@ -431,6 +434,14 @@ function init() {
 
 function initAudio() {
 
+    sndClick = new TunedInstrument();
+    sndClick.polyphony = 1;
+    sndClick.loadVoice("sounds/click1.wav",48);
+
+    sndClack = new TunedInstrument();
+    sndClack.polyphony = 1;
+    sndClack.loadVoice("sounds/click2.wav",48);
+
     try {
 
         //tick.msAudioCategory = "SoundEffects";
@@ -615,8 +626,14 @@ function animateCirc() {
 }
 
 function triggerSound(index,offset) {
+    // todo: use offset
     if (soundsOn && !justStarted) {
-        cordova.exec(0, 0, "AdagioLib", "triggerSound", [index, offset]);
+        if(index > 0) {
+            sndClack.noteOn(42);
+        }
+        else {
+            sndClick.noteOn(42);
+        }
     }
     justStarted = false;
 }
