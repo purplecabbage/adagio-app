@@ -7,14 +7,13 @@
 	-webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
 
     -ms-touch-action: none; /* Disable touch behaviors, like pan and zoom */
-} 
+}
 
 
 body
 {
 	color:#FFF;
 	background-color:#000;
-    background-image:url(../images/Adagio_bg.png);
 	margin: 0 0;
 	padding: 0 0;
 	font-family:helvetica, arial sans-serif;
@@ -57,7 +56,7 @@ body
     height:32px;
     left:0px;
     right:0px;
-    border:1px #8e1137 solid;    
+    border:1px #8e1137 solid;
     margin:10px 8px;
     border-radius:0px;
 }
@@ -66,7 +65,7 @@ body
     position:relative;
     width:64px;
     height:100%;
-    background-color:#770e2e;  
+    background-color:#770e2e;
     border-radius:0px;
     margin:1px 0;
 }
