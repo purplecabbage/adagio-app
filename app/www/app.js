@@ -200,7 +200,7 @@ function makeViewButton(paper) {
 
 
 function onTempoSlider(e) {
-    var x = e.clientX;
+    var x = e.offsetX;
     currentTempo = MinTempo + Math.floor(x / sliderWidth * (MaxTempo-MinTempo));
     currentTempo = Math.min(MaxTempo, currentTempo);
     currentTempo = Math.max(MinTempo, currentTempo);
