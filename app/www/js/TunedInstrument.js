@@ -7,7 +7,6 @@
 
     var AudioCtx = null;
 
-
     try {
 
       AudioCtx =  'webkitAudioContext' in window ? webkitAudioContext :
@@ -64,7 +63,8 @@
             };
             request.send();
         },
-        noteOn:function(noteNum){
+        noteOn:function(noteNum,delaySeconds){
+            var when = delaySeconds ? this.audioContext.currentTime + delaySeconds : 0;
             var source = this.audioContext.createBufferSource(); // creates a sound source
             source.buffer = this.voiceBuffer;  // todo: multiple buffers for pitch ranges
             source.playbackRate.value = notes[noteNum].pitch / notes[48].pitch;
@@ -85,7 +85,7 @@
                     self.bufferSources.splice(index,1);
                 }
             };
-            source.start();
+            source.start(when);
         },
         noteOff:function(noteNum){
 

@@ -629,10 +629,10 @@ function triggerSound(index,offset) {
     // todo: use offset
     if (soundsOn && !justStarted) {
         if(index > 0) {
-            sndClack.noteOn(42);
+            sndClack.noteOn(42,offset / 1000);
         }
         else {
-            sndClick.noteOn(42);
+            sndClick.noteOn(42,offset / 1000);
         }
     }
     justStarted = false;
