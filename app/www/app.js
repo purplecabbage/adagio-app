@@ -1,34 +1,5 @@
 ﻿
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
-if (!Function.prototype.debounce) {
-    Function.prototype.debounce = function (threshold, execAsap) {
 
-        var func = this, timeout;
-
-        return function debounced() {
-            var obj = this, args = arguments;
-            function delayed() {
-                if (!execAsap) {
-                    func.apply(obj, args);
-                }
-                timeout = null;
-            };
-
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-            else if (execAsap) {
-                func.apply(obj, args);
-            }
-
-            timeout = setTimeout(delayed, threshold || 100);
-        };
-
-    };
-}
 
 
 window.addEventListener("resize", onResize);//.debounce(100));
@@ -54,8 +25,6 @@ var swapViewIconPath = "M12.981,9.073V6.817l-12.106,6.99l12.106,6.99v-2.422c3.28
 var tempoDownArrowPath = "M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z";
 var tempoUpArrowPath = "M10.129,22.186 16.316,15.999 10.129,9.812 13.665,6.276 23.389,15.999 13.665,25.725z";
 
-document.addEventListener("touchmove", function(e){e.preventDefault();}, false);
-
 var inputEvent = "click";
 var tactBeginEvent = "touchstart";
 var tactMoveEvent = "touchmove";
@@ -69,10 +38,10 @@ var animStage = 3;
 var MaxTempo = 220;
 var MinTempo = 30;
 
-var sndClick;
-var sndClack;
+var sndTic;
+var sndToc;
 
-
+document.addEventListener("touchmove", function(e){e.preventDefault();}, false);
 
 var currentTempo = parseFloat(localStorage.lastTempo || 66); // Adagio!!
 localStorage.lastTempo = currentTempo;
@@ -103,72 +72,19 @@ var animPoints = [{ transform:"", cx: halfWidth, cy: paperWidth - paperMargin, c
                     { transform:"", cx: paperWidth - paperMargin, cy: halfWidth,  callback: animateCirc},
                     { transform:"", cx: halfWidth, cy: paperMargin, callback: animateCirc }
                     ];
+var ptColors = [ "#2EB7ED","#EAE851", "#228723", "#D21951" ];
+
 
 var conductorView = true;
 
 var pointsSet;
 
-var ptColors = [ "#2EB7ED","#EAE851", "#228723", "#D21951" ];
 var lastTapTime;
 var lastTapX;
 var paper,paper2;
 var tempoText;
 
 var sliderWidth;
-
-
-
-
-
-
-/* When this function is called, Cordova has been initialized and is ready to roll */
-/* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
-see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
-for more details -jm */
-
-function onDeviceReady() {
-    //cordova.exec(0, 0, "TickPlayer", "prepare", []);
-    //setTimeout(function() {
-    //    animateCirc();
-    //},
-    //200);
-
-
-    console.log("deviceready");
-
-    //return;
-
-    // // TODO: re-enable this when the other stuff is cool
-    // cordova.exec(0, 0, "AdagioLib", "init", []);
-    // var soundIndex = 0;
-
-    // var intervalId = setInterval(function () {
-
-    //     if (soundIndex == 0) {
-
-    //         cordova.exec(0, 0, "AdagioLib", "LoadVoice", [0, "Media\\Audio\\Metro1.wav"]);
-    //         soundIndex++;
-    //     }
-    //     else {
-    //         cordova.exec(0, 0, "AdagioLib", "LoadVoice", [1, "Media\\Audio\\Metro2.wav"]);
-    //         clearInterval(intervalId);
-    //     }
-    // }, 100);
-
-}
-
-function $(query) {
-return document.querySelector(query);
-}
-
-if (!Function.prototype.bind) {
-Function.prototype.bind = function(sub) {
-    var me = this;
-    return function() {
-        return me.apply(sub, arguments);
-    };
-};
-}
 
 function makeViewButton(paper) {
     var lines = paper.set();
@@ -217,8 +133,6 @@ function updateTempoSliderThumb() {
 
 
 function init() {
-    console.log("init ... ");
-    document.addEventListener("deviceready", onDeviceReady, false);
     document.addEventListener("pause", onPause);
 
     sliderWidth = parseInt(tempoSlider.offsetWidth);
