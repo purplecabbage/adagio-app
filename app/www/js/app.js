@@ -429,21 +429,19 @@ var lastPos =  { cx: halfWidth, cy: halfWidth },
 
 var didTrigger = false;
 var justStarted = false;
-var justFlashed = false;
+var justFlashed = 0;
 
 
-function startLowLevelAnimation(tElapsed) {
+function startLowLevelAnimation(timeStamp) {
 
-    tElapsed = tElapsed || 0;
+    timeStamp = timeStamp || 0;
     if(--justFlashed < 1) {
         $('#screen').style.backgroundColor = "Black";
     }
-
-
     if (isRunning) {
-        //console.log("tElapsed = " + tElapsed);
+        //console.log("timeStamp = " + timeStamp);
         if (lastTime == null) {
-            lastTime = tElapsed;
+            lastTime = timeStamp;
             var index = (animStage + 4) % 4;
 
             if(nextPos != null) {
@@ -453,14 +451,14 @@ function startLowLevelAnimation(tElapsed) {
         }
 
         var interval = 60 / currentTempo * 1000;    //  tempo could have changed
-        var elapsed = tElapsed - lastTime;
+        var elapsed = timeStamp - lastTime;
+        console.log("elapsed : " + elapsed);
         var dT = elapsed / interval;
 
         var newX = noEase(elapsed, lastPos.cx, nextPos.cx - lastPos.cx, interval);
         var newY = noEase(elapsed,lastPos.cy,nextPos.cy - lastPos.cy,interval);
         newCirc.attr({ cx: newX, cy: newY });
         requestAnimFrame(startLowLevelAnimation);
-
 
         if (elapsed > interval) {
             //console.log("elapsed > interval = " + dT);
