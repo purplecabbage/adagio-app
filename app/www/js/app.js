@@ -429,13 +429,18 @@ var lastPos =  { cx: halfWidth, cy: halfWidth },
 
 var didTrigger = false;
 var justStarted = false;
+var justFlashed = false;
 
 
 function startLowLevelAnimation(tElapsed) {
 
     tElapsed = tElapsed || 0;
-    if (isRunning) {
+    if(--justFlashed < 1) {
+        $('#screen').style.backgroundColor = "Black";
+    }
 
+
+    if (isRunning) {
         //console.log("tElapsed = " + tElapsed);
         if (lastTime == null) {
             lastTime = tElapsed;
@@ -448,10 +453,8 @@ function startLowLevelAnimation(tElapsed) {
         }
 
         var interval = 60 / currentTempo * 1000;    //  tempo could have changed
-
         var elapsed = tElapsed - lastTime;
         var dT = elapsed / interval;
-
 
         var newX = noEase(elapsed, lastPos.cx, nextPos.cx - lastPos.cx, interval);
         var newY = noEase(elapsed,lastPos.cy,nextPos.cy - lastPos.cy,interval);
@@ -549,5 +552,8 @@ function triggerSound(index,offset) {
         }
     }
     justStarted = false;
+    justFlashed = 3;
+    $('#screen').style.backgroundColor = "Red";
+
 }
 
