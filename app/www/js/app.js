@@ -1,22 +1,5 @@
 ﻿
 
-
-
-window.addEventListener("resize", onResize);//.debounce(100));
-
-function onResize() {
-    // window.location.reload();
-    console.log("resize :: " + window.innerHeight);
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(function () {
-        init();
-    }, 300);
-});
-
-
-
 var speakerOnPath = "M4.998,12.127v7.896h4.495l6.729,5.526l0.004-18.948l-6.73,5.526H4.998z M18.806,11.219c-0.393-0.389-1.024-0.389-1.415,0.002c-0.39,0.391-0.39,1.024,0.002,1.416v-0.002c0.863,0.864,1.395,2.049,1.395,3.366c0,1.316-0.531,2.497-1.393,3.361c-0.394,0.389-0.394,1.022-0.002,1.415c0.195,0.195,0.451,0.293,0.707,0.293c0.257,0,0.513-0.098,0.708-0.293c1.222-1.22,1.98-2.915,1.979-4.776C20.788,14.136,20.027,12.439,18.806,11.219z M21.101,8.925c-0.393-0.391-1.024-0.391-1.413,0c-0.392,0.391-0.392,1.025,0,1.414c1.45,1.451,2.344,3.447,2.344,5.661c0,2.212-0.894,4.207-2.342,5.659c-0.392,0.39-0.392,1.023,0,1.414c0.195,0.195,0.451,0.293,0.708,0.293c0.256,0,0.512-0.098,0.707-0.293c1.808-1.809,2.929-4.315,2.927-7.073C24.033,13.24,22.912,10.732,21.101,8.925z M23.28,6.746c-0.393-0.391-1.025-0.389-1.414,0.002c-0.391,0.389-0.391,1.023,0.002,1.413h-0.002c2.009,2.009,3.248,4.773,3.248,7.839c0,3.063-1.239,5.828-3.246,7.838c-0.391,0.39-0.391,1.023,0.002,1.415c0.194,0.194,0.45,0.291,0.706,0.291s0.513-0.098,0.708-0.293c2.363-2.366,3.831-5.643,3.829-9.251C27.115,12.389,25.647,9.111,23.28,6.746z";
 var speakerOffPath = "M4.998,12.127v7.896h4.495l6.729,5.526l0.004-18.948l-6.73,5.526H4.998z";
 var playIconPath = "M6.684,25.682L24.316,15.5L6.684,5.318V25.682z";
@@ -42,6 +25,19 @@ var sndTic;
 var sndToc;
 
 document.addEventListener("touchmove", function(e){e.preventDefault();}, false);
+window.addEventListener("resize", onResize.debounce(300));
+
+function onResize() {
+    //window.location.reload();
+    console.log("resize :: " + window.innerHeight);
+
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(function () {
+        init();
+    }, 300);
+});
 
 var currentTempo = parseFloat(localStorage.lastTempo || 66); // Adagio!!
 localStorage.lastTempo = currentTempo;
@@ -81,31 +77,29 @@ var pointsSet;
 
 var lastTapTime;
 var lastTapX;
-var paper,paper2;
+var beatView,controlView;
 var tempoText;
 
-var sliderWidth;
+function makeViewButton(pp) {
+    var lines = pp.set();
 
-function makeViewButton(paper) {
-    var lines = paper.set();
-
-    lines.push(paper.path("M24 0L24 48").attr({
+    lines.push(pp.path("M24 0L24 48").attr({
         fill: "#FFF",
         stroke: ptColors[3],
         "stroke-width":3
     }));
 
-    lines.push(paper.path("M24 48L0 24").attr({
+    lines.push(pp.path("M24 48L0 24").attr({
         fill: "#FFF",
         stroke: ptColors[0] ,
         "stroke-width":3
     }));
-    lines.push(paper.path("M0 24L48 24").attr({
+    lines.push(pp.path("M0 24L48 24").attr({
         fill: "#FFF",
         stroke:ptColors[1] ,
         "stroke-width":3
     }));
-    lines.push(paper.path("M48 24L24 0").attr({
+    lines.push(pp.path("M48 24L24 0").attr({
         fill: "#FFF",
         stroke: ptColors[2],
         "stroke-width":3
@@ -117,6 +111,8 @@ function makeViewButton(paper) {
 
 function onTempoSlider(e) {
     var x = e.offsetX;
+    var sliderWidth = parseInt(tempoSlider.offsetWidth);
+
     currentTempo = MinTempo + Math.floor(x / sliderWidth * (MaxTempo-MinTempo));
     currentTempo = Math.min(MaxTempo, currentTempo);
     currentTempo = Math.max(MinTempo, currentTempo);
@@ -127,15 +123,14 @@ function onTempoSlider(e) {
 }
 
 function updateTempoSliderThumb() {
-    // MinTempo +
-    thumbGrip.style.width =  + Math.floor( currentTempo / MaxTempo  * sliderWidth) + "px";
+    var sliderWidth = parseInt(tempoSlider.offsetWidth);
+    thumbGrip.style.width = Math.floor( currentTempo / MaxTempo  * sliderWidth) + "px";
 }
 
 
 function init() {
     document.addEventListener("pause", onPause);
 
-    sliderWidth = parseInt(tempoSlider.offsetWidth);
     tempoSlider.style.visibility = "visible";
 
     var isMobile = (navigator.userAgent.match(/iPad|iPhone/i) != null);
@@ -152,15 +147,25 @@ function init() {
         }
     }
 
-    var onSliderMoveEnd = function () {
-        window.removeEventListener(tactMoveEvent, onTempoSlider);
-        window.removeEventListener(tactEndEvent, onSliderMoveEnd);
-    };
+    initView();
 
-    var onSliderMoveStart = function () {
-        window.addEventListener(tactMoveEvent, onTempoSlider);
-        window.addEventListener(tactEndEvent, onSliderMoveEnd);
-    };
+    initAudio();
+    updateTempoSliderThumb();
+
+}
+
+var onSliderMoveEnd = function () {
+    window.removeEventListener(tactMoveEvent, onTempoSlider);
+    window.removeEventListener(tactEndEvent, onSliderMoveEnd);
+};
+
+var onSliderMoveStart = function () {
+    window.addEventListener(tactMoveEvent, onTempoSlider);
+    window.addEventListener(tactEndEvent, onSliderMoveEnd);
+};
+
+function initView() {
+
 
     tempoSlider.addEventListener(tactBeginEvent, onSliderMoveStart);
 
@@ -169,25 +174,24 @@ function init() {
     var wrapTop = Math.floor((window.innerHeight - paperWidth) / 3) + "px";
     wrapDiv.style.marginTop = "0px";//wrapTop;
 
-    paper = Raphael("canvasHolder", paperWidth, paperWidth);
+    beatView = Raphael("canvasHolder", paperWidth, paperWidth);
+    controlView = Raphael("controlDiv", paperWidth,120);
 
-    paper2 = Raphael("controlDiv", paperWidth,120);
-
-    //circ2 = paper.circle(halfWidth, halfWidth, circRad).attr({ stroke: "#711A73", "stroke-width": 4 });
-    newCirc = paper.circle(halfWidth, halfWidth, circRad).attr({ stroke: "#711A73", "stroke-width": 4 });
+    //circ2 = beatView.circle(halfWidth, halfWidth, circRad).attr({ stroke: "#711A73", "stroke-width": 4 });
+    newCirc = beatView.circle(halfWidth, halfWidth, circRad).attr({ stroke: "#711A73", "stroke-width": 4 });
 
     initPoints();
 
     interval = 60 / currentTempo * 1000;
 
-    var speakerBtn = paper2.rect(8,8,48,48,8);
+    var speakerBtn = controlView.rect(8,8,48,48,8);
     speakerBtn.attr({
         fill: "#000",
         stroke: ptColors[0],
         "stroke-width":3
     });
 
-    var speakerIcon = paper2.path(speakerOffPath);
+    var speakerIcon = controlView.path(speakerOffPath);
     speakerIcon.attr({ fill: "#000",
                        stroke: ptColors[0],
                        "stroke-width":3
@@ -203,7 +207,7 @@ function init() {
         localStorage.soundsOn = soundsOn;
 
         if (soundsOn) {
-            speakerIcon = paper2.path(speakerOnPath);
+            speakerIcon = controlView.path(speakerOnPath);
             speakerIcon.attr({
                 fill: ptColors[0],
                 stroke: "none",
@@ -211,7 +215,7 @@ function init() {
             });
         }
         else {
-            speakerIcon = paper2.path(speakerOffPath);
+            speakerIcon = controlView.path(speakerOffPath);
             speakerIcon.attr({
                 fill: "#000",
                 stroke: ptColors[0],
@@ -233,14 +237,13 @@ function init() {
     speakerBtn.node.onclick = speakerClick;
     speakerIcon.node.onclick = speakerClick;
 
-
     // Player button
-    playBtn = paper2.rect(paperWidth - 58, 8,48,48,8);
+    playBtn = controlView.rect(paperWidth - 58, 8,48,48,8);
     playBtn.attr( { fill: "#000",
                     stroke: ptColors[2],
                     "stroke-width":3 });
 
-    var playIcon = paper2.path(playIconPath);
+    var playIcon = controlView.path(playIconPath);
     playIcon.attr({
         fill: "#000",
         stroke: ptColors[2],"stroke-width":3
@@ -253,7 +256,7 @@ function init() {
         playIcon.remove();
         isRunning = !isRunning;
         justStarted = true;
-        playIcon = paper2.path(playIconPath);
+        playIcon = controlView.path(playIconPath);
         playIcon.translate(paperWidth - 48 ,16);
         playIcon.scale(1.5,1.5);
         if (isRunning) {
@@ -274,7 +277,7 @@ function init() {
     playBtn.node.onclick = onPlayIcon;
     playIcon.node.onclick = onPlayIcon;
 
-    beatText = paper.text(halfWidth, halfWidth, "");
+    beatText = beatView.text(halfWidth, halfWidth, "");
     beatText.attr({
         "font-size": 128,
         "fill": "#333",
@@ -285,14 +288,14 @@ function init() {
         "stroke-opacity": 0.2
     });
 
-    tempoText = paper.text(halfWidth, 80, currentTempo + " bpm\n" + getTempoName(currentTempo));
+    tempoText = beatView.text(halfWidth, 80, currentTempo + " bpm\n" + getTempoName(currentTempo));
     tempoText.attr({
         "font-size":24,
         "fill":"#888",
         "font-weight": "bold"
     });
 
-    var tapText = paper.text(halfWidth,paperWidth - 90,"Tap Tempo");
+    var tapText = beatView.text(halfWidth,paperWidth - 90,"Tap Tempo");
     tapText.attr({
         "font-size": 32,
         "fill": "#888",
@@ -300,7 +303,7 @@ function init() {
         "font-weight": "bold"
     });
 
-    var tapTempoBtn = paper.rect(8,8,paperWidth-16, paperWidth-16, 8);
+    var tapTempoBtn = beatView.rect(8,8,paperWidth-16, paperWidth-16, 8);
     tapTempoBtn.attr({"stroke":"#222",
                         "stroke-width": 2,
                         "fill":"#000",
@@ -308,11 +311,11 @@ function init() {
 
     tapTempoBtn.node.addEventListener(tactBeginEvent, onTap.bind(this));
 
-    var swapIcon = makeViewButton(paper2);
+    var swapIcon = makeViewButton(controlView);
     swapIcon.translate(96, 8);
     swapIcon.scale(0.75, 0.75);
 
-    var swapViewBtn = paper2.rect(96, 8, 48, 48, 8);
+    var swapViewBtn = controlView.rect(96, 8, 48, 48, 8);
 
     swapViewBtn.attr({
         fill: "rgba(0,0,0,0.1)",
@@ -340,10 +343,6 @@ function init() {
     };
 
     swapViewBtn.node.onclick = tempToggle;
-
-    initAudio();
-    updateTempoSliderThumb();
-
 }
 
 function initAudio() {
@@ -405,9 +404,9 @@ function onTap(e) {
 }
 
 function initPoints() {
-    pointsSet = paper.set();
+    pointsSet = beatView.set();
     for (var n = 0; n < animPoints.length; n++) {
-        pointsSet.push(paper.circle(animPoints[n].cx, animPoints[n].cy, circRad / 2).attr({
+        pointsSet.push(beatView.circle(animPoints[n].cx, animPoints[n].cy, circRad / 2).attr({
             stroke: ptColors[n],
             "stroke-width": 4
         }));

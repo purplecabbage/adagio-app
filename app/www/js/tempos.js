@@ -1,8 +1,5 @@
 
-
-
 (function(exports) {
-
     var tempos =  [ {n:"Grave",v:20},
                     {n:"Lento",v:40},
                     {n:"Largo",v:53},
@@ -18,7 +15,7 @@
                     {n:"Presto",v:168},
                     {n:"Prestissimo",v:200}
                 ];
-                
+
     exports.getTempoName = function getTempoName(tempo) {
         var tempoName = tempos[0].n;
         for(var n = 0; n<tempos.length;n++) {
@@ -30,4 +27,4 @@
         return tempoName;
     }
 
-})(window);    
+})(window);
