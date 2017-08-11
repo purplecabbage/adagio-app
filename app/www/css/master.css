@@ -5,7 +5,6 @@
 	-webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
 	-webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
 	-webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
-
     -ms-touch-action: none; /* Disable touch behaviors, like pan and zoom */
 }
 
@@ -27,38 +26,37 @@ body
 @media screen and (-ms-view-state: snapped) {
     body {
         margin-top:80px;
-        /*background-image:url(../images/LogoWin8.png);*/
         background-position:50% 0;
         background-repeat:no-repeat;
+
     }
 }
 
-#screen
-{
-    margin: 0 auto;
-	max-width:700px;
-	max-height:700px;
+#screen {
+     /* background-color:lightblue; */
+     margin: 12px 12px;
 }
-
 
 #canvasHolder
 {
-      margin:32px 0 16px 0;
+    margin:16px auto;
+    /* background-color:Yellow; */
 }
 
 #controlDiv
 {
-    margin:20px 0;
+    margin:16px auto;
+    height:64px;
+    /* background-color: Green; */
 }
 
 #tempoSlider {
     visibility:hidden;
     height:32px;
-    left:0px;
-    right:0px;
-    border:1px #8e1137 solid;
-    margin:10px 8px;
-    border-radius:0px;
+    border:2px #8e1137 solid;
+    margin:16px auto;
+    border-radius:8px;
+    /* background-color: Orange; */
 }
 
 #thumbGrip {
@@ -67,5 +65,7 @@ body
     height:100%;
     background-color:#770e2e;
     border-radius:0px;
-    margin:1px 0;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    margin:0px 0;
 }

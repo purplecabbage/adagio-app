@@ -31,6 +31,18 @@ function onResize() {
     //window.location.reload();
     console.log("resize :: " + window.innerHeight);
 
+    paperWidth = 0 + $("#canvasHolder").offsetWidth;
+    halfWidth = paperWidth / 2;
+    console.log("halfWidth : " + halfWidth);
+    lastPos =  { cx: halfWidth, cy: halfWidth };
+    animPoints = [{ transform:"", cx: halfWidth, cy: paperWidth - paperMargin, callback: animateCirc },
+                    { transform:"",cx: paperMargin , cy: halfWidth , callback: animateCirc },
+                    { transform:"", cx: paperWidth - paperMargin, cy: halfWidth,  callback: animateCirc},
+                    { transform:"", cx: halfWidth, cy: paperMargin, callback: animateCirc }
+                    ];
+
+    initView();
+
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -48,9 +60,9 @@ var interval;
 var soundsOn = localStorage.soundsOn == "true";
 var isRunning = false;
 
-var paperWidth = Math.min(window.innerWidth, 700);
+var paperWidth;
 
-var halfWidth = paperWidth / 2;
+var halfWidth;
 var paperMargin = 40;
 
 var circRad = 16;
@@ -60,14 +72,16 @@ var beatText;
 
 var anim;
 
+var wrapDiv;
+
 // transform:"r120 240 120",
 
-var animPoints = [{ transform:"", cx: halfWidth, cy: paperWidth - paperMargin, callback: animateCirc },
-                    { transform:"",cx: paperMargin , cy: halfWidth , callback: animateCirc },
-                    // { transform:"t0,-120r90t0,120", cx: paperMargin, cy: halfWidth, easing: "linear", callback: animateCirc },
-                    { transform:"", cx: paperWidth - paperMargin, cy: halfWidth,  callback: animateCirc},
-                    { transform:"", cx: halfWidth, cy: paperMargin, callback: animateCirc }
-                    ];
+var animPoints;
+//  = [{ transform:"", cx: halfWidth, cy: paperWidth - paperMargin, callback: animateCirc },
+//                     { transform:"",cx: paperMargin , cy: halfWidth , callback: animateCirc },
+//                     { transform:"", cx: paperWidth - paperMargin, cy: halfWidth,  callback: animateCirc},
+//                     { transform:"", cx: halfWidth, cy: paperMargin, callback: animateCirc }
+//                     ];
 var ptColors = [ "#2EB7ED","#EAE851", "#228723", "#D21951" ];
 
 
@@ -131,6 +145,8 @@ function updateTempoSliderThumb() {
 function init() {
     document.addEventListener("pause", onPause);
 
+    wrapDiv = $("#screen");
+
     tempoSlider.style.visibility = "visible";
 
     var isMobile = (navigator.userAgent.match(/iPad|iPhone/i) != null);
@@ -147,11 +163,10 @@ function init() {
         }
     }
 
-    initView();
+    tempoSlider.addEventListener(tactBeginEvent, onSliderMoveStart);
 
+    onResize();
     initAudio();
-    updateTempoSliderThumb();
-
 }
 
 var onSliderMoveEnd = function () {
@@ -166,19 +181,19 @@ var onSliderMoveStart = function () {
 
 function initView() {
 
+    updateTempoSliderThumb();
 
-    tempoSlider.addEventListener(tactBeginEvent, onSliderMoveStart);
+    if(beatView) {
+        canvasHolder.innerText = "";
+        beatView = null;
 
-
-    var wrapDiv = $(".wrap");
-    var wrapTop = Math.floor((window.innerHeight - paperWidth) / 3) + "px";
-    wrapDiv.style.marginTop = "0px";//wrapTop;
-
+        controlDiv.innerText = "";
+        controlView = null;
+    }
     beatView = Raphael("canvasHolder", paperWidth, paperWidth);
     controlView = Raphael("controlDiv", paperWidth,120);
-
-    //circ2 = beatView.circle(halfWidth, halfWidth, circRad).attr({ stroke: "#711A73", "stroke-width": 4 });
-    newCirc = beatView.circle(halfWidth, halfWidth, circRad).attr({ stroke: "#711A73", "stroke-width": 4 });
+    newCirc = beatView.circle(halfWidth, halfWidth, circRad)
+                      .attr({ stroke: "#711A73", "stroke-width": 4 });
 
     initPoints();
 
@@ -414,7 +429,7 @@ function initPoints() {
 }
 
 // shim layer with setTimeout fallback
-window.requestAnimFrame = (function () {
+window.reqAnimFr = (function () {
 
     return  window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -424,8 +439,7 @@ window.requestAnimFrame = (function () {
             };
 })();
 
-var lastPos =  { cx: halfWidth, cy: halfWidth },
-    nextPos, lastTime;
+var lastPos, nextPos, lastTime;
 
 var didTrigger = false;
 var justStarted = false;
@@ -436,7 +450,7 @@ function startLowLevelAnimation(timeStamp) {
 
     timeStamp = timeStamp || 0;
     if(--justFlashed < 1) {
-        $('#screen').style.backgroundColor = "Black";
+        wrapDiv.style.backgroundColor = "Black";
     }
     if (isRunning) {
         //console.log("timeStamp = " + timeStamp);
@@ -452,13 +466,13 @@ function startLowLevelAnimation(timeStamp) {
 
         var interval = 60 / currentTempo * 1000;    //  tempo could have changed
         var elapsed = timeStamp - lastTime;
-        console.log("elapsed : " + elapsed);
+        //console.log("elapsed : " + elapsed);
         var dT = elapsed / interval;
 
         var newX = noEase(elapsed, lastPos.cx, nextPos.cx - lastPos.cx, interval);
         var newY = noEase(elapsed,lastPos.cy,nextPos.cy - lastPos.cy,interval);
         newCirc.attr({ cx: newX, cy: newY });
-        requestAnimFrame(startLowLevelAnimation);
+        reqAnimFr(startLowLevelAnimation);
 
         if (elapsed > interval) {
             //console.log("elapsed > interval = " + dT);
@@ -486,11 +500,10 @@ function startLowLevelAnimation(timeStamp) {
         }
     }
     else {
-        var centerPos = { cx: halfWidth, cy: halfWidth };
-        lastPos = centerPos;
+        lastPos = { cx: halfWidth, cy: halfWidth };
         nextPos = null;
         lastTime = null;
-        newCirc.animate(centerPos, 1000, "elastic");
+        newCirc.animate(lastPos, 1000, "elastic");
     }
 
     updateBeatText();
@@ -540,7 +553,6 @@ function animateCirc() {
 }
 
 function triggerSound(index,offset) {
-    // todo: use offset
     if (soundsOn && !justStarted) {
         if(index > 0) {
             sndClack.noteOn(42,offset / 1000);
@@ -551,7 +563,7 @@ function triggerSound(index,offset) {
     }
     justStarted = false;
     justFlashed = 3;
-    $('#screen').style.backgroundColor = "Red";
+    wrapDiv.style.backgroundColor = "Red";
 
 }
 
