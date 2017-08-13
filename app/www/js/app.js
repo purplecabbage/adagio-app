@@ -28,10 +28,14 @@ document.addEventListener("touchmove", function(e){e.preventDefault();}, false);
 window.addEventListener("resize", onResize.debounce(300));
 
 function onResize() {
-    //window.location.reload();
     console.log("resize :: " + window.innerHeight);
 
+    console.log('$("#canvasHolder").offsetWidth = ' + $("#canvasHolder").offsetWidth);
+
     paperWidth = 0 + $("#canvasHolder").offsetWidth;
+    if(paperWidth == 0) {
+        paperWidth = 512;
+    }
     halfWidth = paperWidth / 2;
     console.log("halfWidth : " + halfWidth);
     lastPos =  { cx: halfWidth, cy: halfWidth };
@@ -46,9 +50,7 @@ function onResize() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(function () {
-        init();
-    }, 300);
+    init();
 });
 
 var currentTempo = parseFloat(localStorage.lastTempo || 66); // Adagio!!
@@ -165,8 +167,9 @@ function init() {
 
     tempoSlider.addEventListener(tactBeginEvent, onSliderMoveStart);
 
-    onResize();
     initAudio();
+    onResize();
+
 }
 
 var onSliderMoveEnd = function () {
@@ -191,7 +194,9 @@ function initView() {
         controlView = null;
     }
     beatView = Raphael("canvasHolder", paperWidth, paperWidth);
-    controlView = Raphael("controlDiv", paperWidth,120);
+    controlView = Raphael("controlDiv", paperWidth,controlDiv.offsetHeight);
+
+
     newCirc = beatView.circle(halfWidth, halfWidth, circRad)
                       .attr({ stroke: "#711A73", "stroke-width": 4 });
 
@@ -369,20 +374,6 @@ function initAudio() {
     sndClack = new TunedInstrument();
     sndClack.polyphony = 1;
     sndClack.loadVoice("sounds/click2.wav",48);
-
-    try {
-
-        //tick.msAudioCategory = "SoundEffects";
-        //tock.msAudioCategory = "SoundEffects";
-        //tick.volume = 0.9;
-
-        //tock.volume = 0.5;
-        //tick.src = "Sounds/METROMN1.wav";
-        //tock.src = "Sounds/METROMN2.wav";
-    }
-    catch (ex) {
-        alert("exceptional :: " + ex);
-    }
 }
 
 // reset and stop ...

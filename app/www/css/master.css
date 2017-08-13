@@ -33,30 +33,37 @@ body
 }
 
 #screen {
-     /* background-color:lightblue; */
-     margin: 12px 12px;
+    margin: 12px 12px;
+    display:flex;
+    flex-direction: column;
+    justify-content:space-between;
+    position:absolute;
+    height:100%;
+    width:100%;
 }
 
 #canvasHolder
 {
     margin:16px auto;
-    /* background-color:Yellow; */
+    /* background:Blue; */
+    flex-basis:200px;
 }
 
-#controlDiv
-{
-    margin:16px auto;
-    height:64px;
-    /* background-color: Green; */
+#controlDiv {
+    /* margin:16px auto; */
+    /* background:Green; */
+    flex-basis: 64px;
+    width:100%;
 }
 
 #tempoSlider {
-    visibility:hidden;
-    height:32px;
+    width:100%;
     border:2px #8e1137 solid;
-    margin:16px auto;
+    /* margin:16px auto; */
     border-radius:8px;
-    /* background-color: Orange; */
+    /* background:Red; */
+    flex-basis:32px;
+    height:32px;
 }
 
 #thumbGrip {
